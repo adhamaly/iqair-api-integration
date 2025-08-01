@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  air-quality:
+    build:
+      context: .
+      dockerfile: ./apps/air-quality/Dockerfile
+    container_name: air-quality
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - rabbitmq
+  cron:
+    build:
+      context: .
+      dockerfile: ./apps/cron/Dockerfile
+    container_name: cron
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.runCommand("ping").ok']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: ['CMD', 'rabbitmqctl', 'status']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mongo_data:
