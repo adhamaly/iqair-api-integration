@@ -7,15 +7,27 @@ import { AbstractDocument } from 'common/common';
 export class AirQuality extends AbstractDocument {
   @Prop() city: string;
 
-  @Prop() lat: number;
-
-  @Prop() lng: number;
+  @Prop({
+    type: {
+      type: String,
+      enum: ['Point'], // Only 'Point' allowed
+      required: true,
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      required: true,
+    },
+  })
+  location: {
+    type: 'Point';
+    coordinates: number[];
+  };
 
   @Prop({ type: Pollution })
   @Type(() => Pollution)
   pollution: Pollution;
-
-  @Prop() timestamp: Date;
 }
 
 export const AirQualitySchema = SchemaFactory.createForClass(AirQuality);
+
+AirQualitySchema.index({ location: '2dsphere' });

@@ -2,7 +2,7 @@ import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema()
 export class Pollution {
-  @Prop() ts: string;
+  @Prop() ts: Date;
   @Prop() aqius: number;
   @Prop() mainus: string;
   @Prop() aqicn: number;
